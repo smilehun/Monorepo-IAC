@@ -1,0 +1,13 @@
+- [ ] Repository
+- [ ] Backend
+- [ ] Frontend
+- [ ] Docker
+- [ ] Docker Compose
+- [ ] Jenkins
+- [ ] Harbor
+- [ ] SonarQube
+- [ ] Helm
+- [ ] Kubernetes
+- [ ] Prometheus
+- [ ] Grafana
+- [ ] Loki
