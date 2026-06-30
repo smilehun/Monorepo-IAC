@@ -18,10 +18,14 @@ _Status snapshot: 2026-06-30_
 **Status:** Not Started
 
 ## Phase 4 — Docker
-**Status:** Not Started
+**Status:** In Progress
+- Initial Identity API Dockerfile is in place.
+- Runtime verification still requires an available Docker daemon.
 
 ## Phase 5 — Docker Compose
-**Status:** Not Started
+**Status:** In Progress
+- Initial API + PostgreSQL local Compose stack is in place.
+- Compose syntax has been validated; runtime verification still requires an available Docker daemon.
 
 ## Phase 6 — CI/CD
 **Status:** Not Started

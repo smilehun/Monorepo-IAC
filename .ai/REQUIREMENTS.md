@@ -67,7 +67,7 @@ Target:
 Target:
 - PostgreSQL running via Docker with persistent volumes
 
-**Current state:** PostgreSQL provider integration and EF Core migration exist. Dockerized local database setup does not.
+**Current state:** PostgreSQL provider integration and EF Core migration exist. An initial Docker Compose PostgreSQL setup exists for local development.
 
 ## Infrastructure
 Target:
@@ -191,30 +191,30 @@ Expected assets include Dockerfiles, Docker Compose, Helm charts, Kubernetes man
 
 # 11. Docker
 Required:
-- [ ] Dockerfile
-- [ ] Multi-stage build
-- [ ] Healthcheck
-- [ ] Environment variables
-- [ ] Small image
-- [ ] Pinned versions
-- [ ] Non-root user whenever possible
+- [x] Dockerfile
+- [x] Multi-stage build
+- [x] Healthcheck
+- [x] Environment variables
+- [x] Small image
+- [x] Pinned versions
+- [x] Non-root user whenever possible
 
-**Status:** Not started.
+**Status:** In Progress. Initial API Dockerfile is present; runtime verification still requires an available Docker daemon.
 
 ---
 
 # 12. Docker Compose
 Required for local development:
-- [ ] Backend
+- [x] Backend
 - [ ] Frontend
-- [ ] PostgreSQL
+- [x] PostgreSQL
 - [ ] PgAdmin (optional)
 
 Future:
 - [ ] RabbitMQ
 - [ ] Redis
 
-**Status:** Not started.
+**Status:** In Progress. Initial API + PostgreSQL Compose stack is present; frontend and optional PgAdmin are not included yet.
 
 ---
 
@@ -263,7 +263,7 @@ Use:
 - `.env.example`
 - Kubernetes Secrets
 
-**Status:** In Progress. Runtime config uses environment variables, but `.env.example` and Kubernetes secret assets are not implemented.
+**Status:** In Progress. Runtime config uses environment variables and a Compose `.env.example` exists, but Kubernetes secret assets are not implemented.
 
 ---
 

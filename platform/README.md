@@ -18,3 +18,55 @@ Service-scoped delivery and operations assets for the AccessHub Identity microse
 Everything under `platform/` should support this single service.
 
 Do not treat this directory as the infrastructure home for the entire AccessHub platform.
+
+## Local Docker / Compose
+
+Build the Identity API image from the repository root:
+
+```bash
+docker build -f platform/docker/Dockerfile -t accesshub-identity-api:local .
+```
+
+Run the local API and PostgreSQL stack:
+
+```bash
+docker compose --env-file platform/compose/.env.example -f platform/compose/compose.yaml up --build -d
+```
+
+For local development, copy the example env file and replace the placeholder values with local-only secrets:
+
+```bash
+cp platform/compose/.env.example platform/compose/.env
+docker compose --env-file platform/compose/.env -f platform/compose/compose.yaml up --build -d
+```
+
+Check container status:
+
+```bash
+docker compose --env-file platform/compose/.env.example -f platform/compose/compose.yaml ps
+```
+
+Verify the API:
+
+```bash
+curl http://localhost:5080/health
+curl http://localhost:5080/
+```
+
+Stop the stack:
+
+```bash
+docker compose --env-file platform/compose/.env.example -f platform/compose/compose.yaml down
+```
+
+Remove the PostgreSQL volume when a clean local database is needed:
+
+```bash
+docker compose --env-file platform/compose/.env.example -f platform/compose/compose.yaml down -v
+```
+
+## Database migrations
+
+Docker Compose starts PostgreSQL and the API, but it does not automatically apply Entity Framework Core migrations yet.
+
+Until a dedicated migration/bootstrap slice is added, apply migrations explicitly from the backend tooling when database schema is required for endpoint testing beyond health checks.

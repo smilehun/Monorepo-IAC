@@ -1,4 +1,5 @@
 using AccessHub.Identity.Application.Auth;
+using AccessHub.Identity.Application.Authorization;
 using AccessHub.Identity.Infrastructure.Auth;
 using AccessHub.Identity.Infrastructure.Persistence;
 using AccessHub.Identity.Infrastructure.Persistence.Repositories;
@@ -23,6 +24,7 @@ public static class DependencyInjection
 
     services.AddScoped<IAuthUserRepository, AuthUserRepository>();
     services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+    services.AddScoped<IUserPermissionReader, UserPermissionReader>();
     services.AddSingleton<IPasswordHasher, PasswordHasher>();
     services.AddSingleton<IAccessTokenService, AccessTokenService>();
     services.AddSingleton<IRefreshTokenService, RefreshTokenService>();

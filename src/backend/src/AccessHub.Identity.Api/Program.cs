@@ -1,9 +1,12 @@
 using System.Text;
+using AccessHub.Identity.Api.Authorization;
 using AccessHub.Identity.Api.Configuration;
 using AccessHub.Identity.Api.Endpoints;
 using AccessHub.Identity.Application;
+using AccessHub.Identity.Application.Authorization;
 using AccessHub.Identity.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -37,7 +40,14 @@ builder.Services
   .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
   .AddJwtBearer();
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+  options.AddPolicy(
+    AuthorizationPolicies.ViewCurrentUser,
+    policy => policy.Requirements.Add(new PermissionRequirement(AuthorizationPermissions.ViewCurrentUser)));
+});
+
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 builder.Services
   .AddApplication()

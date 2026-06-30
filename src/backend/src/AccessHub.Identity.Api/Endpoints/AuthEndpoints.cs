@@ -1,4 +1,5 @@
 using AccessHub.Identity.Application.Auth;
+using AccessHub.Identity.Application.Authorization;
 using ApplicationAuthenticationService = AccessHub.Identity.Application.Auth.IAuthenticationService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ public static class AuthEndpoints
       .RequireAuthorization();
 
     group.MapGet("/me", GetCurrentUser)
-      .RequireAuthorization();
+      .RequireAuthorization(AuthorizationPolicies.ViewCurrentUser);
 
     return endpoints;
   }

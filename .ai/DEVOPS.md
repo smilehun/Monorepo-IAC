@@ -8,10 +8,10 @@ _Status snapshot: 2026-06-30_
 - Structured logging is configured with Serilog
 - Health checks are exposed by the API
 - Platform directory structure exists under `platform/`
+- Initial Docker build asset exists for the Identity API
+- Initial Docker Compose local environment exists for API and PostgreSQL
 
 ### Not Yet Implemented
-- Docker build assets
-- Docker Compose local environment
 - Jenkins pipeline as code
 - Harbor registry integration
 - Helm charts

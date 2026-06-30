@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using AccessHub.Identity.Application.Authorization;
+using AccessHub.Identity.Domain.Entities;
 using AccessHub.Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,6 +91,8 @@ public sealed class AuthEndpointsTests
     var payload = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
     Assert.NotNull(payload);
 
+    await GrantViewCurrentUserPermissionAsync(factory, payload.User.Id);
+
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload.Tokens.AccessToken);
 
     var meResponse = await client.GetAsync("/api/auth/me");
@@ -99,6 +103,42 @@ public sealed class AuthEndpointsTests
     Assert.NotNull(me);
     Assert.Equal("user3@example.com", me.Email);
     Assert.Equal("user3", me.Username);
+  }
+
+  [Fact]
+  public async Task GetCurrentUser_ReturnsUnauthorized_WhenBearerTokenIsMissing()
+  {
+    await using var factory = new TestAuthApiFactory();
+    using var client = factory.CreateClient();
+
+    var response = await client.GetAsync("/api/auth/me");
+
+    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetCurrentUser_ReturnsForbidden_WhenPermissionIsMissing()
+  {
+    await using var factory = new TestAuthApiFactory();
+    using var client = factory.CreateClient();
+
+    var registerResponse = await client.PostAsJsonAsync("/api/auth/register", new
+    {
+      Email = "user-no-permission@example.com",
+      Username = "userNoPermission",
+      Password = "Password123"
+    });
+
+    registerResponse.EnsureSuccessStatusCode();
+
+    var payload = await registerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+    Assert.NotNull(payload);
+
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload.Tokens.AccessToken);
+
+    var response = await client.GetAsync("/api/auth/me");
+
+    Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
   }
 
   [Fact]
@@ -152,6 +192,8 @@ public sealed class AuthEndpointsTests
     });
 
     Assert.Equal(HttpStatusCode.Unauthorized, replayResponse.StatusCode);
+
+    await GrantViewCurrentUserPermissionAsync(factory, registerPayload.User.Id);
 
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", refreshedPayload.Tokens.AccessToken);
 
@@ -353,6 +395,47 @@ public sealed class AuthEndpointsTests
     });
 
     Assert.Equal(HttpStatusCode.BadRequest, blankTokenResponse.StatusCode);
+  }
+
+  private static async Task GrantViewCurrentUserPermissionAsync(TestAuthApiFactory factory, Guid userId)
+  {
+    using var scope = factory.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+
+    var role = new Role
+    {
+      Id = Guid.NewGuid(),
+      Name = $"current-user-viewer-{userId:N}",
+      Description = "Can view the current user."
+    };
+
+    var permission = await dbContext.Permissions.SingleOrDefaultAsync(
+      existingPermission => existingPermission.Name == AuthorizationPermissions.ViewCurrentUser);
+
+    if (permission is null)
+    {
+      permission = new Permission
+      {
+        Id = Guid.NewGuid(),
+        Name = AuthorizationPermissions.ViewCurrentUser
+      };
+
+      dbContext.Permissions.Add(permission);
+    }
+
+    dbContext.Roles.Add(role);
+    dbContext.RolePermissions.Add(new RolePermission
+    {
+      RoleId = role.Id,
+      PermissionId = permission.Id
+    });
+    dbContext.UserRoles.Add(new UserRole
+    {
+      UserId = userId,
+      RoleId = role.Id
+    });
+
+    await dbContext.SaveChangesAsync();
   }
 
   public sealed record AuthResponseDto(UserDto User, TokensDto Tokens);

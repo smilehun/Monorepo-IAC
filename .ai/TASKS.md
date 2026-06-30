@@ -12,6 +12,9 @@ _Status snapshot: 2026-06-30_
 - [x] Implement register, login, refresh, logout, current-user, and change-password flows
 - [x] Implement password hashing and refresh-token rotation
 - [x] Add unit and integration tests for the current authentication slice
+- [x] Add initial Dockerfile for the Identity API
+- [x] Add Docker Compose local environment for API and PostgreSQL
+- [x] Add Compose environment example
 
 ## In Progress
 - [ ] Implement policy-based RBAC on top of the existing role/permission schema
@@ -36,15 +39,12 @@ _Status snapshot: 2026-06-30_
 - [ ] Service-owned UI flows
 
 ### Platform / DevOps
-- [ ] Dockerfile
-- [ ] Docker Compose
 - [ ] Jenkins pipeline
 - [ ] Harbor integration
 - [ ] Helm chart
 - [ ] Kubernetes manifests
 - [ ] Ingress configuration
 - [ ] Prometheus / Grafana / Loki
-- [ ] .env.example
 
 ## Recommended Next Slice
 - [ ] Add one narrow authorization slice: one real policy, one protected endpoint, and tests for 401 vs 403
