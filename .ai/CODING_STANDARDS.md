@@ -1,29 +1,26 @@
 # Coding Standards
 
-Backend
+_Status snapshot: 2026-06-30_
 
-Use Clean Architecture.
+## Backend
+- Use Clean Architecture.
+- Prefer constructor injection.
+- Avoid static services.
+- No magic strings.
+- No magic numbers.
 
-Prefer constructor injection.
+**Current status:** Mostly aligned in the implemented backend slices. Layering and constructor injection are in use. Some literal strings remain in auth and claim handling.
 
-Avoid static services.
+## Frontend
+- Feature-first folder structure.
+- Strong typing.
+- Reusable components.
 
-No magic strings.
+**Current status:** Not started.
 
-No magic numbers.
+## Infrastructure
+- Everything declarative.
+- Everything version controlled.
+- Everything documented.
 
-Frontend
-
-Feature-first folder structure.
-
-Strong typing.
-
-Reusable components.
-
-Infrastructure
-
-Everything declarative.
-
-Everything version controlled.
-
-Everything documented.
+**Current status:** Intent is documented, but working infrastructure assets are not implemented yet.

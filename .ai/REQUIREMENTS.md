@@ -1,175 +1,296 @@
-# Project Requirements
+# AccessHub - Project Requirements
 
-## Vision
+> Version: 1.0
+>
+> This document is the single source of truth for this repository.
+>
+> Status annotations reflect the current repository state as of 2026-06-30.
 
-Build a production-quality portfolio project.
+---
 
-The repository must demonstrate:
+# 1. Vision
+Build a production-quality Identity service for the AccessHub IAM platform.
 
-- Senior .NET development
-- Senior React development
-- DevOps
-- Kubernetes
+**Status:** In Progress
+
+---
+
+# 2. Goals
+Target qualities:
+- Clean Architecture
+- Domain Driven Design (where appropriate)
+- Microservice-first architecture
 - Infrastructure as Code
+- Docker
+- Kubernetes
 - CI/CD
-- Observability
+- Monitoring
+- Logging
+- Security
+- Automated deployment
+- Production readiness
 
-The repository should look like a real enterprise project rather than a tutorial.
-
----
-
-# Principles
-
-The repository is the single source of truth.
-
-Everything should be reproducible.
-
-Everything should be automated whenever possible.
-
-Everything should be version controlled.
-
-Avoid manual configuration.
+**Status:** Partially met. Backend architecture and core authentication are in place. Platform, deployment, and production-readiness work remain pending.
 
 ---
 
-# Target Platform
+# 3. Technology Stack
+## Backend
+Target:
+- .NET 9
+- ASP.NET Core Web API
+- Entity Framework Core
+- PostgreSQL
+- FluentValidation
+- JWT Authentication
+- Refresh Token
+- Serilog
+- Health Checks
+- OpenAPI
 
-Ubuntu Server
+**Current state:** All of the above are present except FluentValidation. Validation is currently implemented manually in the application layer.
 
-Docker Engine
+## Frontend
+Target:
+- React
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
+- Zustand
+- Tailwind CSS
+- Axios
 
-Docker Compose
+**Current state:** Not started.
 
-k3s
+## Database
+Target:
+- PostgreSQL running via Docker with persistent volumes
 
-Jenkins
+**Current state:** PostgreSQL provider integration and EF Core migration exist. Dockerized local database setup does not.
 
-Harbor
+## Infrastructure
+Target:
+- Ubuntu Server
+- Docker Engine
+- Docker Compose
+- k3s
+- Helm
+- Jenkins
+- Harbor
+- SonarQube
+- NGINX Ingress
+- Prometheus
+- Grafana
+- Loki
 
-SonarQube
-
-Prometheus
-
-Grafana
-
-Loki
-
-NGINX Ingress
-
----
-
-# Backend
-
-.NET 9
-
-ASP.NET Core
-
-Clean Architecture
-
-Entity Framework Core
-
-Serilog
-
-FluentValidation
-
-Health Checks
-
-OpenAPI
-
----
-
-# Frontend
-
-React
-
-TypeScript
-
-Vite
-
-TanStack Query
-
-TailwindCSS
-
-React Router
+**Current state:** Planned only.
 
 ---
 
-# Deployment
+# 4. Architecture
+This repository represents the **Identity** bounded context as the first **AccessHub microservice**.
 
-Docker
+It should be independently buildable, deployable, testable, and observable.
 
-Docker Compose
-
-Helm
-
-Kubernetes
+**Status:** Partially met. The backend is independently buildable and testable. Deployment and full observability are not yet implemented.
 
 ---
 
-# CI/CD
+# 5. Authentication
+Implement:
+- [x] Register
+- [x] Login
+- [x] Logout
+- [x] JWT Access Token
+- [x] Refresh Token
+- [x] Token Rotation
+- [x] Password Hashing
+- [x] Change Password
 
-GitHub
+Future:
+- [ ] Forgot Password
+- [ ] Email Verification
+- [ ] MFA
+- [ ] OAuth2
+- [ ] OIDC
 
-↓
-
-Jenkins
-
-↓
-
-SonarQube
-
-↓
-
-Build
-
-↓
-
-Test
-
-↓
-
-Docker Build
-
-↓
-
-Harbor
-
-↓
-
-Helm Upgrade
-
-↓
-
-k3s
+**Status:** Implemented for the current authentication slice and covered by tests.
 
 ---
 
-# Infrastructure as Code
+# 6. Authorization
+Implement RBAC with policy-based authorization.
 
-Everything must be stored in Git.
+Entities:
+- [x] User
+- [x] Role
+- [x] Permission
+- [x] UserRole
+- [x] RolePermission
 
-Never rely on manual configuration.
+Runtime behavior:
+- [ ] Policy-based authorization
+- [ ] Permission evaluation through ASP.NET Core policies
+- [ ] No role checks inside controllers/endpoints
 
-Infrastructure should be declarative.
-
----
-
-# Quality
-
-Prefer maintainability over speed.
-
-Do not introduce technical debt.
-
-Do not generate unnecessary abstractions.
-
-Always explain architectural decisions.
+**Status:** In Progress. The schema exists, but runtime RBAC behavior is not implemented yet.
 
 ---
 
-# Working Style
+# 7. User Management
+Implement:
+- [ ] User CRUD
+- [ ] Enable User
+- [ ] Disable User
+- [ ] Lock User
+- [ ] Unlock User
+- [ ] User Profile
+- [ ] Search Users
+- [ ] Pagination
+- [ ] Sorting
+- [ ] Filtering
 
-Implement incrementally.
+**Status:** Not started.
 
-Never perform huge refactors.
+---
 
-Wait for approval after each phase.
+# 8. Audit Logging
+Every important action must generate an audit record.
+
+Examples include login, logout, create/update/delete user, assign/remove role, and password change.
+
+Audit records should include timestamp, user, action, resource, IP address, and result.
+
+**Status:** In Progress at the schema level only. `AuditLog` exists, but events are not being emitted yet.
+
+---
+
+# 9. Repository Structure
+This repository should contain everything needed to build, deploy, and operate the **AccessHub Identity service**.
+
+Expected areas:
+- `src/`
+- `platform/`
+- `scripts/`
+- `docs/`
+- `README.md`
+
+**Status:** In Progress. The structure exists, but many areas still contain placeholders.
+
+---
+
+# 10. Infrastructure as Code
+Everything must be declarative and stored in Git.
+
+Expected assets include Dockerfiles, Docker Compose, Helm charts, Kubernetes manifests, scripts, and configuration.
+
+**Status:** Not started beyond repository structure and placeholder docs.
+
+---
+
+# 11. Docker
+Required:
+- [ ] Dockerfile
+- [ ] Multi-stage build
+- [ ] Healthcheck
+- [ ] Environment variables
+- [ ] Small image
+- [ ] Pinned versions
+- [ ] Non-root user whenever possible
+
+**Status:** Not started.
+
+---
+
+# 12. Docker Compose
+Required for local development:
+- [ ] Backend
+- [ ] Frontend
+- [ ] PostgreSQL
+- [ ] PgAdmin (optional)
+
+Future:
+- [ ] RabbitMQ
+- [ ] Redis
+
+**Status:** Not started.
+
+---
+
+# 13. Kubernetes
+Required:
+- [ ] Deployment
+- [ ] Service
+- [ ] Ingress
+- [ ] ConfigMap
+- [ ] Secret
+- [ ] PersistentVolumeClaim
+
+Use Helm whenever appropriate.
+
+**Status:** Not started.
+
+---
+
+# 14. CI/CD
+Target pipeline:
+GitHub → Jenkins → Restore → Build → Unit Test → SonarQube → Docker Build → Docker Push → Harbor → Helm Upgrade → k3s → Smoke Test
+
+**Status:** Not started.
+
+---
+
+# 15. Monitoring
+Implement:
+- [ ] Prometheus
+- [ ] Grafana
+- [ ] Loki
+- [x] Application Health Checks
+- [x] Structured Logging
+- [ ] Metrics
+- [ ] Prepare for OpenTelemetry
+
+**Status:** In Progress. App health and logging exist; the monitoring stack and metrics do not.
+
+---
+
+# 16. Security
+Never hardcode passwords, secrets, API keys, JWT secrets, or connection strings.
+
+Use:
+- Environment Variables
+- `.env.example`
+- Kubernetes Secrets
+
+**Status:** In Progress. Runtime config uses environment variables, but `.env.example` and Kubernetes secret assets are not implemented.
+
+---
+
+# 17. Documentation
+Generate documentation for architecture, folder structure, development, Docker, Compose, Kubernetes, Helm, CI/CD, monitoring, troubleshooting, backup, and restore.
+
+Use Mermaid where appropriate.
+
+**Status:** In Progress. Basic repository documentation exists; the operational documentation set is still pending.
+
+---
+
+# 18. Coding Principles
+Prefer simplicity, avoid overengineering, keep APIs documented, and keep everything testable.
+
+**Status:** Partially aligned. Recent backend work is incremental and tested, but documentation and some standards gaps remain.
+
+---
+
+# 19. Development Workflow
+Follow: Analyze → Design → Explain → Wait for approval → Implement → Review → Summarize.
+
+**Status:** Being followed for recent backend slices.
+
+---
+
+# 20. Working Rules for AI
+Analyze first, understand the architecture, produce a roadmap, wait for approval, avoid unrelated refactors, explain trade-offs, and optimize for maintainability.
+
+**Status:** Active operating rules.

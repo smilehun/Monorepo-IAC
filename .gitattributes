@@ -1,0 +1,21 @@
+* text=auto eol=lf
+
+*.md text
+*.txt text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+*.cs text
+*.csproj text
+*.sln text
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.css text
+*.scss text
+*.sh text
+*.ps1 text
+*.Dockerfile text
+Dockerfile text
