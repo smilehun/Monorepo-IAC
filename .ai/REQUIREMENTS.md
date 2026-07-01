@@ -4,7 +4,7 @@
 >
 > This document is the single source of truth for this repository.
 >
-> Status annotations reflect the current repository state as of 2026-06-30.
+> Status annotations reflect the current repository state as of 2026-07-01.
 
 ---
 
@@ -30,7 +30,7 @@ Target qualities:
 - Automated deployment
 - Production readiness
 
-**Status:** Partially met. Backend architecture and core authentication are in place. Platform, deployment, and production-readiness work remain pending.
+**Status:** Partially met. Backend architecture, core authentication, initial RBAC runtime behavior, Docker/Compose, Jenkins CI, and gated Harbor publishing are in place. Deployment, frontend, full observability, and broader production-readiness work remain pending.
 
 ---
 
@@ -67,7 +67,7 @@ Target:
 Target:
 - PostgreSQL running via Docker with persistent volumes
 
-**Current state:** PostgreSQL provider integration and EF Core migration exist. An initial Docker Compose PostgreSQL setup exists for local development.
+**Current state:** PostgreSQL provider integration and EF Core migration exist. An initial Docker Compose PostgreSQL setup exists for local development and has been verified with EF migrations and the containerized API register flow.
 
 ## Infrastructure
 Target:
@@ -84,7 +84,7 @@ Target:
 - Grafana
 - Loki
 
-**Current state:** Planned only.
+**Current state:** Docker, Docker Compose, Jenkins pipeline as code, and gated Harbor image publishing are partially implemented for the Identity service. k3s, Helm, SonarQube, NGINX Ingress, Prometheus, Grafana, and Loki remain planned only.
 
 ---
 
@@ -93,7 +93,7 @@ This repository represents the **Identity** bounded context as the first **Acces
 
 It should be independently buildable, deployable, testable, and observable.
 
-**Status:** Partially met. The backend is independently buildable and testable. Deployment and full observability are not yet implemented.
+**Status:** Partially met. The backend is independently buildable and testable, containerized, runnable locally with PostgreSQL through Compose, and wired into an initial Jenkins/Harbor delivery path. Deployment and full observability are not yet implemented.
 
 ---
 
@@ -130,11 +130,11 @@ Entities:
 - [x] RolePermission
 
 Runtime behavior:
-- [ ] Policy-based authorization
-- [ ] Permission evaluation through ASP.NET Core policies
-- [ ] No role checks inside controllers/endpoints
+- [x] Policy-based authorization for the initial current-user policy
+- [x] Permission evaluation through ASP.NET Core policies for one endpoint
+- [x] No role checks inside controllers/endpoints for the implemented slice
 
-**Status:** In Progress. The schema exists, but runtime RBAC behavior is not implemented yet.
+**Status:** In Progress. The schema exists and one runtime permission policy protects `/api/auth/me`; broader RBAC administration and additional policies are not implemented yet.
 
 ---
 
@@ -185,7 +185,7 @@ Everything must be declarative and stored in Git.
 
 Expected assets include Dockerfiles, Docker Compose, Helm charts, Kubernetes manifests, scripts, and configuration.
 
-**Status:** Not started beyond repository structure and placeholder docs.
+**Status:** In Progress. Dockerfile, Docker Compose, Jenkins pipeline, and Harbor publishing conventions are declarative and version controlled. Helm charts, Kubernetes manifests, ingress, monitoring assets, and operational scripts remain pending.
 
 ---
 
@@ -199,7 +199,7 @@ Required:
 - [x] Pinned versions
 - [x] Non-root user whenever possible
 
-**Status:** In Progress. Initial API Dockerfile is present; runtime verification still requires an available Docker daemon.
+**Status:** In Progress. Initial API Dockerfile is present and the image build has been verified locally.
 
 ---
 
@@ -214,7 +214,7 @@ Future:
 - [ ] RabbitMQ
 - [ ] Redis
 
-**Status:** In Progress. Initial API + PostgreSQL Compose stack is present; frontend and optional PgAdmin are not included yet.
+**Status:** In Progress. Initial API + PostgreSQL Compose stack is present and verified with health checks, EF migrations, and register flow. Frontend and optional PgAdmin are not included yet.
 
 ---
 
@@ -237,7 +237,7 @@ Use Helm whenever appropriate.
 Target pipeline:
 GitHub → Jenkins → Restore → Build → Unit Test → SonarQube → Docker Build → Docker Push → Harbor → Helm Upgrade → k3s → Smoke Test
 
-**Status:** Not started.
+**Status:** In Progress. Initial Jenkins pipeline as code exists for restore, build, test, Docker image build, and gated Harbor image publishing. SonarQube, Helm upgrade, k3s deployment, and smoke test stages are not implemented yet.
 
 ---
 

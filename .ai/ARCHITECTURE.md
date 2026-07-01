@@ -1,6 +1,6 @@
 # Architecture
 
-_Status snapshot: 2026-06-30_
+_Status snapshot: 2026-07-01_
 
 AccessHub is the broader IAM platform.
 
@@ -25,15 +25,18 @@ Identity currently targets the authentication boundary:
 - EF Core persistence model and initial migration
 - JWT bearer authentication, health checks, and structured logging
 - Unit and integration test coverage for the current auth slice
+- Initial policy-based RBAC slice protecting `/api/auth/me`
+- Initial Docker, Compose, Jenkins, and gated Harbor publishing assets under `platform/`
 
 ### Partially Implemented
-- Authorization data model exists (`User`, `Role`, `Permission`, `UserRole`, `RolePermission`), but runtime RBAC policies are not implemented
+- Authorization data model exists (`User`, `Role`, `Permission`, `UserRole`, `RolePermission`) and one runtime permission policy is implemented; broader RBAC administration is not implemented
 - Audit log model exists, but audit event emission is not implemented
-- Repository structure is aligned, but most frontend and platform areas remain placeholders
+- Repository structure is aligned, but frontend, Helm, Kubernetes, ingress, and monitoring areas remain placeholders
 
 ### Not Implemented
 - Frontend workflow implementation
-- Delivery, deployment, and observability platform assets
+- Helm/Kubernetes/ingress deployment assets
+- Prometheus/Grafana/Loki observability assets
 
 ## Repository Structure
 ```text
@@ -65,7 +68,7 @@ Prometheus → Grafana
 Logging → Loki
 
 ## Recommended Next Slice
-Move from authentication into authorization with a deliberately narrow RBAC slice:
-- add policy-based authorization
-- protect one endpoint with a real policy
-- verify 401 versus 403 behavior with tests
+Move platform delivery from image publishing into deployment packaging with a deliberately narrow Helm slice:
+- add a service Helm chart for the Identity API
+- template deployment, service, config, secret references, and health probes
+- keep Kubernetes rollout and ingress for the following slice

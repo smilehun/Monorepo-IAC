@@ -65,6 +65,23 @@ Remove the PostgreSQL volume when a clean local database is needed:
 docker compose --env-file platform/compose/.env.example -f platform/compose/compose.yaml down -v
 ```
 
+## Jenkins CI
+
+The Jenkins pipeline lives at `platform/jenkins/Jenkinsfile`.
+
+Configure Jenkins with:
+
+- Definition: `Pipeline script from SCM`
+- Script Path: `platform/jenkins/Jenkinsfile`
+
+The current pipeline restores, builds, tests, and builds the Identity API Docker image locally on the Jenkins agent. It can optionally publish the built image to Harbor when explicitly enabled with Jenkins parameters. It does not deploy to Kubernetes yet.
+
+## Harbor
+
+Harbor image naming and tagging conventions live in `platform/harbor/README.md`.
+
+Local Docker Compose continues to build and use `accesshub-identity-api:local`; it does not require Harbor.
+
 ## Database migrations
 
 Docker Compose starts PostgreSQL and the API, but it does not automatically apply Entity Framework Core migrations yet.

@@ -1,6 +1,6 @@
 # Tasks
 
-_Status snapshot: 2026-06-30_
+_Status snapshot: 2026-07-01_
 
 ## Done
 - [x] Establish repository layout for backend, frontend, platform, scripts, and docs
@@ -15,11 +15,18 @@ _Status snapshot: 2026-06-30_
 - [x] Add initial Dockerfile for the Identity API
 - [x] Add Docker Compose local environment for API and PostgreSQL
 - [x] Add Compose environment example
+- [x] Add initial Jenkins pipeline for restore, build, test, and Docker image build
+- [x] Add Jenkins pipeline runbook
+- [x] Add gated Jenkins Harbor image publishing
+- [x] Add Harbor image naming and tagging conventions
+- [x] Add narrow policy-based RBAC slice for `/api/auth/me`
+- [x] Verify 401 versus 403 behavior for the initial authorization policy
+- [x] Verify Docker Compose stack with real PostgreSQL and containerized API register flow
 
 ## In Progress
-- [ ] Implement policy-based RBAC on top of the existing role/permission schema
+- [ ] Expand policy-based RBAC beyond the initial current-user policy
 - [ ] Expand documentation beyond placeholders and intent notes
-- [ ] Replace platform placeholder directories with working delivery assets
+- [ ] Replace remaining platform placeholder directories with working delivery assets
 
 ## Not Started
 ### Backend
@@ -39,12 +46,11 @@ _Status snapshot: 2026-06-30_
 - [ ] Service-owned UI flows
 
 ### Platform / DevOps
-- [ ] Jenkins pipeline
-- [ ] Harbor integration
+- [ ] Harbor lifecycle policies such as retention and scanning conventions
 - [ ] Helm chart
 - [ ] Kubernetes manifests
 - [ ] Ingress configuration
 - [ ] Prometheus / Grafana / Loki
 
 ## Recommended Next Slice
-- [ ] Add one narrow authorization slice: one real policy, one protected endpoint, and tests for 401 vs 403
+- [ ] Add one narrow Helm slice: service chart, values, config/secret references, health probes, and image settings

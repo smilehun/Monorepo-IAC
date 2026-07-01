@@ -1,0 +1,184 @@
+pipeline {
+  agent any
+
+  options {
+    skipDefaultCheckout(true)
+    timestamps()
+  }
+
+  parameters {
+    booleanParam(
+      name: 'PUBLISH_TO_HARBOR',
+      defaultValue: false,
+      description: 'Push the built Identity API image to Harbor after tests pass.'
+    )
+    string(
+      name: 'HARBOR_REGISTRY',
+      defaultValue: '',
+      description: 'Harbor registry host, for example harbor.example.internal. Do not include a scheme or path.'
+    )
+    string(
+      name: 'HARBOR_PROJECT',
+      defaultValue: '',
+      description: 'Harbor project or namespace for AccessHub Identity images.'
+    )
+    string(
+      name: 'HARBOR_CREDENTIALS_ID',
+      defaultValue: 'harbor-robot-accesshub-identity',
+      description: 'Jenkins username/password credential ID for the Harbor robot account.'
+    )
+  }
+
+  environment {
+    SOLUTION_PATH = 'src/backend/AccessHub.Identity.sln'
+    DOCKERFILE_PATH = 'platform/docker/Dockerfile'
+    IMAGE_NAME = 'accesshub-identity-api'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Toolchain Info') {
+      steps {
+        sh 'dotnet --info'
+        sh 'docker --version'
+      }
+    }
+
+    stage('Restore') {
+      steps {
+        sh 'dotnet restore "$SOLUTION_PATH"'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'dotnet build "$SOLUTION_PATH" --configuration Release --no-restore'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'dotnet test "$SOLUTION_PATH" --configuration Release --no-restore --logger trx --results-directory TestResults'
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        sh 'docker build -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME:$BUILD_NUMBER" .'
+      }
+    }
+
+    stage('Validate Harbor Configuration') {
+      when {
+        expression { return params.PUBLISH_TO_HARBOR }
+      }
+      steps {
+        script {
+          def registry = params.HARBOR_REGISTRY?.trim()
+          def project = params.HARBOR_PROJECT?.trim()
+          def credentialsId = params.HARBOR_CREDENTIALS_ID?.trim()
+
+          if (!registry) {
+            error('HARBOR_REGISTRY is required when PUBLISH_TO_HARBOR=true.')
+          }
+
+          if (!project) {
+            error('HARBOR_PROJECT is required when PUBLISH_TO_HARBOR=true.')
+          }
+
+          if (!credentialsId) {
+            error('HARBOR_CREDENTIALS_ID is required when PUBLISH_TO_HARBOR=true.')
+          }
+
+          if (registry.startsWith('http://') || registry.startsWith('https://')) {
+            error('HARBOR_REGISTRY must not include http:// or https://.')
+          }
+
+          if (registry.contains('/')) {
+            error('HARBOR_REGISTRY must be a registry host only and must not include a path.')
+          }
+
+          env.HARBOR_REGISTRY_VALUE = registry
+          env.HARBOR_PROJECT_VALUE = project
+          env.HARBOR_CREDENTIALS_ID_VALUE = credentialsId
+        }
+      }
+    }
+
+    stage('Docker Tag for Harbor') {
+      when {
+        expression { return params.PUBLISH_TO_HARBOR }
+      }
+      steps {
+        script {
+          def repository = "${env.HARBOR_REGISTRY_VALUE}/${env.HARBOR_PROJECT_VALUE}/${env.IMAGE_NAME}"
+          def refs = ["${repository}:build-${env.BUILD_NUMBER}"]
+          def branchName = env.BRANCH_NAME?.trim()
+
+          if (branchName) {
+            def safeBranch = branchName
+              .toLowerCase()
+              .replaceAll(/[^a-z0-9_.-]+/, '-')
+              .replaceAll(/^[.-]+|[.-]+$/, '')
+
+            if (safeBranch) {
+              refs.add("${repository}:${safeBranch.take(100)}-${env.BUILD_NUMBER}")
+            }
+
+            if (branchName == 'main') {
+              refs.add("${repository}:latest")
+            }
+          }
+
+          env.HARBOR_IMAGE_REFS = refs.unique().join('\n')
+        }
+
+        sh '''
+          for image_ref in $HARBOR_IMAGE_REFS; do
+            docker tag "$IMAGE_NAME:$BUILD_NUMBER" "$image_ref"
+          done
+        '''
+      }
+    }
+
+    stage('Docker Push to Harbor') {
+      when {
+        expression { return params.PUBLISH_TO_HARBOR }
+      }
+      steps {
+        script {
+          withCredentials([
+            usernamePassword(
+              credentialsId: env.HARBOR_CREDENTIALS_ID_VALUE,
+              usernameVariable: 'HARBOR_USERNAME',
+              passwordVariable: 'HARBOR_PASSWORD'
+            )
+          ]) {
+            sh '''
+              set +x
+              printf '%s' "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY_VALUE" --username "$HARBOR_USERNAME" --password-stdin
+              set -x
+
+              for image_ref in $HARBOR_IMAGE_REFS; do
+                docker push "$image_ref"
+              done
+
+              docker logout "$HARBOR_REGISTRY_VALUE" || true
+            '''
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'TestResults/**/*.trx', allowEmptyArchive: true
+    }
+  }
+}
